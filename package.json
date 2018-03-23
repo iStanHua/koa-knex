@@ -1,0 +1,35 @@
+{
+  "name": "koa-knex",
+  "version": "1.0.0",
+  "description": "koa knex mysql",
+  "private": true,
+  "scripts": {
+    "dev": "./node_modules/.bin/nodemon app",
+    "db": "node ./app/extend/dbInit.js",
+    "task": "node ./app/schedule/index.js",
+    "pm2": "pm2 start app"
+  },
+  "dependencies": {
+    "koa": "^2.5.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-json": "^2.0.2",
+    "koa-logger": "^3.2.0",
+    "koa-onerror": "^4.0.0",
+    "koa-router": "^7.4.0",
+    "koa-static": "^4.0.2",
+    "koa-compress": "^2.0.0",
+    "nodemailer": "^4.6.3",
+    "nodemailer-smtp-transport": "^2.7.4",
+    "koa-session2": "^2.2.5",
+    "koa-favicon": "^2.0.1",
+    "koa-cors": "^0.0.16"
+  },
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "mysql2": "^1.5.3",
+    "node-schedule": "^1.3.0",
+    "nodemon": "^1.17.2",
+    "knex": "^0.14.4"
+  }
+}
