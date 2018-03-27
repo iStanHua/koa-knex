@@ -8,18 +8,15 @@ const logger = require('koa-logger')
 const cors = require('koa-cors') // 跨域处理
 const favicon = require('koa-favicon')
 
-const port = 8080
-
-const contexts = require('./app/extend/context')
-const routes = require('./app/router')
 const response = require('./app/middlewares/response')
+const knex = require('./app/middlewares/knex')
+const configs = require('./config')
+// const routes = require('./app/router')
 
 const app = new Koa()
 
 // error handler
 onerror(app)
-// context
-contexts(app)
 
 // middlewares
 // 解析请求体
@@ -32,11 +29,12 @@ app.use(cors())
 app.use(favicon(__dirname + '/public/logo.jpg'))
 app.use(require('koa-static')(__dirname + '/public'))
 // router
-app.use(routes.routes(), routes.allowedMethods())
+// app.use(routes.routes(), routes.allowedMethods())
 
 // 使用响应处理中间件
 app.use(response)
-
+// knex
+app.use(knex)
 
 // logger
 app.use(async (ctx, next) => {
@@ -51,8 +49,8 @@ app.on('error', (err, ctx) => {
     console.error('server error', err, ctx)
 })
 
-app.listen(port, () => {
-    console.log(`Listening on http://127.0.0.1:${port}`)
+app.listen(configs.server.port, () => {
+    console.log(`Listening on http://${configs.server.host}:${configs.server.port}`)
 })
 
 module.exports = app
