@@ -7,17 +7,24 @@ module.exports = (knex) => {
         if (!exists) {
             return knex.schema.createTable('t_order', t => {
                 t.uuid('id').unique().primary().notNullable()
-                // 生成订单的编号
+                // 订单编号
                 t.string('order_no', 50)
-
-                // 付款方式
-                t.string('payment', 20)
-                // 付款方式
-                t.string('price', 20)
+                // 交易金额
+                t.decimal('amount', 10, 2)
                 // 订购数量
                 t.integer('count')
+                // 交易类型
+                t.string('payment', 20)
                 // 状态(1:待付款,2:待发货,3:待收货,4:待评价,5:退款/售后)
                 t.integer('status', 1)
+                // 收货人
+                t.string('receiver', 10)
+                // 联系电话
+                t.string('telephone', 16)
+                // 所在地区
+                t.string('area', 100)
+                // 详细地址
+                t.string('address', 100)
                 // 是否显示
                 t.integer('active', 1).defaultTo(1)
                 t.bigInteger('created_time').defaultTo(new Date().getTime())

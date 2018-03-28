@@ -8,7 +8,7 @@ module.exports = (knex) => {
             return knex.schema.createTable('t_address', t => {
                 t.uuid('id').unique().primary().notNullable()
                 // 收货人
-                t.string('name', 10)
+                t.string('receiver', 10)
                 // 联系电话
                 t.string('telephone', 16)
                 // 所在地区
@@ -17,7 +17,7 @@ module.exports = (knex) => {
                 t.string('address', 100)
                 // 默认
                 t.integer('is_default',1).defaultTo(1)
-                // 状态
+                // 是否显示
                 t.integer('active',1).defaultTo(1)
                 t.bigInteger('created_time').defaultTo(new Date().getTime())
                 t.bigInteger('updated_time').defaultTo(new Date().getTime())

@@ -10,7 +10,11 @@ module.exports = (knex) => {
                 // 名称
                 t.string('name', 100)
                 // 销售单价
-                t.decimal('price', 10, 2)
+                t.decimal('sale_amount', 10, 2)
+                // 市场单价
+                t.decimal('market_amount', 10, 2)
+                // 运费
+                t.decimal('express_amount', 10, 2).defaultTo(0)
                 // 销售数量
                 t.integer('sale_count')
                 // 图片（多张用,分割）
@@ -25,8 +29,14 @@ module.exports = (knex) => {
                 t.integer('is_shelf').defaultTo(0)
                 // 详情
                 t.text('content')
+                // 是否支持拼单(0,1)
+                t.integer('is_fight').defaultTo(0)
+                // 拼单金额
+                t.decimal('fight_amount', 10, 2)
+                // 拼单人数
+                t.integer('fight_count', 1)
                 // 状态(0,1)
-                t.integer('active',1).defaultTo(1)
+                t.integer('active', 1).defaultTo(1)
                 t.bigInteger('created_time').defaultTo(new Date().getTime())
                 t.bigInteger('updated_time').defaultTo(new Date().getTime())
 
@@ -34,6 +44,9 @@ module.exports = (knex) => {
                 t.uuid('sort_id').notNullable()
                 t.foreign('sort_id').references('id').inTable('t_sort')
 
+                // 商家id
+                t.uuid('business_id').notNullable()
+                t.foreign('business_id').references('id').inTable('t_business')
             })
         }
     })
