@@ -10,20 +10,20 @@ module.exports = async (ctx, next) => {
         // 处理响应结果
         // 如果直接写入在 body 中，则不作处理
         // 如果写在 ctx.body 为空，则使用 state 作为响应
+        console.log(ctx.request)
         ctx.body = ctx.body ? ctx.body : {
-            code: ctx.state.code !== undefined ? ctx.state.code : 404,
-            data: ctx.state.data !== undefined ? ctx.state.data : 'Not Found'
+            code: 404,
+            data: 'Not Found'
         }
     }
     catch (e) {
-        console.log(ctx.status)
         // 设置状态码为 200 - 服务端错误
         ctx.status = 200
 
         // 输出详细的错误信息
         ctx.body = {
             code: -1,
-            error: e && e.message ? e.message : e.toString()
+            data: '未知错误'
         }
     }
 }

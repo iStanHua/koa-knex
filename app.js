@@ -2,6 +2,7 @@
 
 const Koa = require('koa')
 const onerror = require('koa-onerror')
+const helmet = require('koa-helmet')
 const bodyparser = require('koa-bodyparser') // 传参获取
 const json = require('koa-json')
 const logger = require('koa-logger')
@@ -9,9 +10,8 @@ const cors = require('koa-cors') // 跨域处理
 const favicon = require('koa-favicon')
 
 const response = require('./app/middlewares/response')
-const knex = require('./app/middlewares/knex')
 const configs = require('./config')
-// const routes = require('./app/router')
+const routes = require('./app/routes')
 
 const app = new Koa()
 
@@ -23,18 +23,17 @@ onerror(app)
 app.use(bodyparser({
     enableTypes: ['json', 'form', 'text']
 }))
+app.use(helmet())
 app.use(json())
 app.use(logger())
-app.use(cors())
+app.use(cors(configs.cors))
 app.use(favicon(__dirname + '/public/logo.jpg'))
 app.use(require('koa-static')(__dirname + '/public'))
 // router
-// app.use(routes.routes(), routes.allowedMethods())
+app.use(routes.routes(), routes.allowedMethods())
 
 // 使用响应处理中间件
 app.use(response)
-// knex
-app.use(knex)
 
 // logger
 app.use(async (ctx, next) => {
