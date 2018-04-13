@@ -5,22 +5,24 @@ class fetch {
         this.request = require('request')
     }
     /**
-     * 
-     * @param {String}  url      请求地址
-     * @param {Object}  options  参数
+     *     
+     * @param {String}  options.url  请求地址
      */
-    get(url, options = {}) {
+    get(options = {}) {
         return new Promise((resolve, reject) => {
-            request
-                .get(url, options)
-                .on('response', function (response) {
-                    console.log(response)
-                    if (response.statusCode) {
-                        resolve(response)
+            this.request
+                .get(options, (err, res, body) => {
+                    if (err) {
+                        reject({ code: 404, data: err })
                     }
-                })
-                .on('error', function (err) {
-                    reject({ code: 404, data: res.message })
+                    else {
+                        if (res.statusCode == 200) {
+                            resolve(JSON.parse(body))
+                        }
+                        else {
+                            reject({ code: 404, data: res })
+                        }
+                    }
                 })
         })
     }
@@ -38,7 +40,7 @@ class fetch {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             }
-            request(_options)
+            this.request(_options)
                 .then((err, res) => {
                     let _data = res.data
                     if (res.status == 200) {

@@ -1,6 +1,10 @@
 'use strict'
 
 const Koa = require('koa')
+const http = require('http')
+const https = require('https')
+const enforceHttps = require('koa-sslify')
+const fs = require('fs')
 const onerror = require('koa-onerror')
 const helmet = require('koa-helmet')
 const bodyparser = require('koa-bodyparser') // 传参获取
@@ -35,6 +39,9 @@ app.use(routes.routes(), routes.allowedMethods())
 // 使用响应处理中间件
 app.use(response)
 
+// Force HTTPS on all page
+app.use(enforceHttps())
+
 // logger
 app.use(async (ctx, next) => {
     const start = new Date()
@@ -48,8 +55,22 @@ app.on('error', (err, ctx) => {
     console.error('server error', err, ctx)
 })
 
-app.listen(configs.server.port, () => {
+// app.listen(configs.server.port, () => {
+//     console.log(`Listening on http://${configs.server.host}:${configs.server.port}`)
+// })
+
+// SSL options
+var options = {
+    key: fs.readFileSync('cert/server.key'),
+    cert: fs.readFileSync('cert/server.crt')
+}
+
+// start the server
+http.createServer(app.callback()).listen(configs.server.port, () => {
     console.log(`Listening on http://${configs.server.host}:${configs.server.port}`)
+})
+https.createServer(options, app.callback()).listen(443, () => {
+    console.log(`Listening on https://${configs.server.host}`)
 })
 
 module.exports = app

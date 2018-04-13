@@ -9,7 +9,7 @@ const request = require('request')
 
 const Controller = require('./index')
 
-const { fetch } = require('../extends/request')
+const fetch = require('../extends/request')
 
 class WxController extends Controller {
   constructor() {
@@ -25,10 +25,50 @@ class WxController extends Controller {
    * @param {String} appid   小程序唯一标识
    * @param {String} secret  小程序的 app secret
    */
-  async accessToken(ctx, next) {
-    let _body = { code: 200, data: '' }
+  _token(appid, secret) {
+    return new Promise((resolve, reject) => {
+      fetch.get({
+        url: `${this.baseUrl}cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${secret}`
+      }).then(res => {
+        resolve(res)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+  /**
+   * 获取ticket
+   * @param {String} access_token  小程序的 access_token
+   * @param {String} type          类型(jsapi,wx_card)
+   */
+  _ticket(access_token, type = 'jsapi') {
+    return new Promise((resolve, reject) => {
+      fetch.get({
+        url: `${this.baseUrl}cgi-bin/ticket/getticket?access_token=${access_token}&type=${type}`
+      }).then(res => {
+        resolve(res)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+  /**
+   * 获取access_token
+   * @param {String} appid   小程序唯一标识
+   * @param {String} secret  小程序的 app secret
+   */
+  async token(ctx, next) {
+    let _body = { code: 200 }
     let { appid, secret } = ctx.query
-    let result = await fetch(`${this.baseUrl}cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${secret}`)
+    if (!appid) {
+      return this.success(ctx, this.errorInfo.required('appid'))
+    }
+    if (!secret) {
+      return this.success(ctx, this.errorInfo.required('secret'))
+    }
+    let result = await this._token(appid, secret)
     if (result.errcode) {
       _body.code = result.errcode
       _body.data = result.errmsg
@@ -41,19 +81,34 @@ class WxController extends Controller {
 
   /**
   * 获取ticket
-  * @param {String} type          类型(jsapi,wx_card)
-  * @param {String} access_token  调用接口凭证
+  * @param {String} appid   小程序唯一标识
+  * @param {String} secret  小程序的 app secret
+  * @param {String} type    类型(jsapi,wx_card)
   */
   async getTicket(ctx, next) {
-    let _body = { code: 200, data: '' }
-    let { access_token, type } = ctx.query
-    let result = await fetch(`${this.baseUrl}cgi-bin/ticket/getticket?access_token=${access_token}&type=${type}`)
+    let _body = { code: 200 }
+    let { appid, secret, type } = ctx.query
+    if (!appid) {
+      return this.success(ctx, this.errorInfo.required('appid'))
+    }
+    if (!secret) {
+      return this.success(ctx, this.errorInfo.required('secret'))
+    }
+
+    let result = await this._token(appid, secret)
     if (result.errcode) {
       _body.code = result.errcode
       _body.data = result.errmsg
     }
     else {
-      _body.data = result
+      result = await this._ticket(result.access_token, type)
+      if (result.errcode) {
+        _body.code = result.errcode
+        _body.data = result.errmsg
+      }
+      else {
+        _body.data = result
+      }
     }
     this.success(ctx, _body)
   }
@@ -65,7 +120,7 @@ class WxController extends Controller {
   * @param {String} url     需要调用 JS 接口的 URL
   */
   async getSignature(ctx, next) {
-    let _body = { code: 200, data: '' }
+    let _body = { code: 200 }
     let { appid, secret, url } = ctx.query
     if (!appid) {
       return this.success(ctx, this.errorInfo.required('appid'))
@@ -76,14 +131,13 @@ class WxController extends Controller {
     if (!url) {
       return this.success(ctx, this.errorInfo.required('url'))
     }
-    let result = await fetch(`${this.baseUrl}cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${secret}`)
+    let result = await this._token(appid, secret)
     if (result.errcode) {
       _body.code = result.errcode
       _body.data = result.errmsg
     }
     else {
-      let _token = result.access_token
-      result = await fetch(`${this.baseUrl}cgi-bin/ticket/getticket?access_token=${_token}&type=jsapi`)
+      result = await this._ticket(result.access_token)
       if (result.errcode) {
         _body.code = result.errcode
         _body.data = result.errmsg
@@ -101,15 +155,28 @@ class WxController extends Controller {
   }
 
   /**
-   * 获取access_token
+   * 获取用户openid
    * @param {String} appid   小程序唯一标识
    * @param {String} secret  小程序的 app secret
+   * @param {String} code    用户登录凭证（有效期五分钟）
    */
-  async jscode2session(ctx, next) {
-    let _body = { code: 200, data: '' }
-    let { appid, secret } = ctx.query
-
-    let result = await fetch(`${this.baseUrl}sns/jscode2session?appid=${appid}&secret=${secret}&js_code=JSCODE&grant_type=authorization_code`)
+  async getOpenid(ctx, next) {
+    let _body = { code: 200 }
+    let { appid, secret, code } = ctx.query
+    // if (!appid) {
+    //   return this.success(ctx, this.errorInfo.required('appid'))
+    // }
+    // if (!secret) {
+    //   return this.success(ctx, this.errorInfo.required('secret'))
+    // }
+    appid = appid || this.appid
+    secret = secret || this.secret
+    if (!code) {
+      return this.success(ctx, this.errorInfo.required('code'))
+    }
+    let result = await fetch.get({
+      url: `${this.baseUrl}sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code`
+    })
     if (result.errcode) {
       _body.code = result.errcode
       _body.data = result.errmsg
@@ -131,7 +198,7 @@ class WxController extends Controller {
    * @param {Object} line_color   {"r":"0","g":"0","b":"0"}
    */
   async wxaQrcode(ctx, next) {
-    let _body = { code: 200, data: '' }
+    let _body = { code: 200 }
     let _data = {}
     let { appid, secret, scene, path, width, auto_color, line_color } = ctx.query
     if (!appid) {
@@ -165,7 +232,7 @@ class WxController extends Controller {
       _data.line_color = line_color
     }
 
-    let result = await fetch(`${this.baseUrl}cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${secret}`)
+    let result = await this._token(appid, secret)
     if (result.errcode) {
       _body.code = result.errcode
       _body.data = result.errmsg
@@ -173,14 +240,17 @@ class WxController extends Controller {
     else {
       let _token = result.access_token
       let _fileName = '/upload/qrcode/' + uuid1().toString().replace(/-/g, '') + '.png'
-      await fetch(`${this.baseUrl}wxa/getwxacodeunlimit?access_token=${_token}`, 'post', data).then(data => {
-        data.pipe(fs.createWriteStream(Path.join(process.cwd(), 'public' + _fileName)))
-        _body.data = _fileName
-      }).catch(err => {
+      await fetch.request({
+        method: 'POST',
+        url: `${this.baseUrl}wxa/getwxacodeunlimit?access_token=${_token}`,
+        body: JSON.stringify(_data)
+      }).on('error', (err) => {
         return this.success(ctx, this.errorInfo.serverError())
-      })
+      }).pipe(fs.createWriteStream(Path.join(process.cwd(), 'public' + _fileName)))
+      _body.data = _fileName
     }
     this.success(ctx, _body)
   }
+
 }
 module.exports = new WxController()

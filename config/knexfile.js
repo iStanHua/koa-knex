@@ -10,7 +10,7 @@ module.exports = {
             password: '123456',
             database: 'koa_che'
         },
-        debug: true
+        // debug: true
     },
     production: {
         client: 'mysql',
