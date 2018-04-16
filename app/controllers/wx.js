@@ -15,11 +15,35 @@ class WxController extends Controller {
   constructor() {
     super()
     this.baseUrl = 'https://api.weixin.qq.com/'
+    this.openUrl = 'https://open.weixin.qq.com/'
 
     this.appid = 'wxfd57b05dd6dec87e'
     this.secret = '2089b5d0e0753a6f359df69412d63b39'
   }
 
+  //#region  网站应用
+  /**
+   * 获取access_token
+   * @param {String} appid   应用唯一标识
+   * @param {String} secret  应用密钥AppSecret
+   * @param {String} code    code
+   */
+  _oauth2(appid, secret, code) {
+    return new Promise((resolve, reject) => {
+      fetch.get({
+        url: `${this.baseUrl}sns/oauth2/access_token?appid=${appid}&secret=${secret}&code=${code}&grant_type=authorization_code`
+      }).then(res => {
+        resolve(res)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+
+  //#endregion
+
+  //#region  小程序
   /**
    * 获取access_token
    * @param {String} appid   小程序唯一标识
@@ -251,6 +275,7 @@ class WxController extends Controller {
     }
     this.success(ctx, _body)
   }
+  //#endregion
 
 }
 module.exports = new WxController()
