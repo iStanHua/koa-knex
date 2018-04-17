@@ -204,7 +204,7 @@ class UserController extends Controller {
       return this.success(ctx, this.errorInfo.required('密码'))
     }
     else {
-      _data.password = this.md5(password)
+      _data.password = this.secret.MD5(password)
     }
     let result = await User.login(_data)
     if (result.code) {

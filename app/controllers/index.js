@@ -1,8 +1,10 @@
 'use strict'
 
+const Secret = require('../extends/secret')
+
 class Controller {
     constructor() {
-        this.md5 = require('../extends/md5')
+        this.secret = new Secret('stanhua')
         this.validate = require('../extends/validate')
         this.errorInfo = require('../extends/errorInfo')
     }

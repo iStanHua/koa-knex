@@ -18,7 +18,10 @@ const response = require('./app/middlewares/response')
 const configs = require('./config')
 const routes = require('./app/routes')
 
+const Extends = require('./app/extends/index')
+
 const app = new Koa()
+app.proxy = true
 
 // error handler
 onerror(app)
@@ -71,13 +74,15 @@ var options = {
     key: fs.readFileSync('cert/server.key'),
     cert: fs.readFileSync('cert/server.crt')
 }
-
+let ips = new Extends().getIps()
 // start the server
 http.createServer(app.callback()).listen(configs.server.port, () => {
-    console.log(`Listening on http://${configs.server.host}:${configs.server.port}`)
+    console.log(`Listening on http://${ips.IPv4}:${configs.server.port}`)
+
 })
 https.createServer(options, app.callback()).listen(443, () => {
-    console.log(`Listening on https://${configs.server.host}`)
+    // console.log(`Listening on https://${configs.server.host}`)
+    console.log(`Listening on https://${ips.IPv4}`)
 })
 
 module.exports = app
