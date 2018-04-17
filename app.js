@@ -3,6 +3,7 @@
 const Koa = require('koa')
 const http = require('http')
 const https = require('https')
+const proxy = require('koa-proxy')
 const enforceHttps = require('koa-sslify')
 const fs = require('fs')
 const onerror = require('koa-onerror')
@@ -33,11 +34,17 @@ app.use(logger())
 app.use(cors(configs.cors))
 app.use(favicon(__dirname + '/public/logo.jpg'))
 app.use(require('koa-static')(__dirname + '/public'))
+
 // router
 app.use(routes.routes(), routes.allowedMethods())
 
 // 使用响应处理中间件
 app.use(response)
+
+// proxy
+app.use(proxy({
+    host: 'http://${configs.server.host}:8080'
+}))
 
 // Force HTTPS on all page
 app.use(enforceHttps())
