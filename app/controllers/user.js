@@ -131,16 +131,22 @@ class UserController extends Controller {
   * @returns result
   */
   async delete(id, flag = false) {
-    let res = await User.count({ id: id })
-    if (!res) {
-      return this.success(ctx, this.errorInfo.unexist('用户'))
-    }
-    if (flag) {
-      return await User.delete({ id: id })
+    let _body = { code: 200, data: '删除成功' }
+    if (await this.checkAuth(ctx)) {
+      let { id } = ctx.params
+      if (id && isNaN(Number(id))) {
+        return this.success(ctx, this.errorInfo.invalid('用户'))
+      }
+      let { flag } = ctx.request.body
+      let result = await Brand.deleteUser(parseInt(id), flag)
+      if (result && result.code) {
+        _body = result
+      }
     }
     else {
-      return await this.update(id, { active: '0' })
+      _body = this.errorInfo.unauthorized()
     }
+    this.success(ctx, _body)
   }
 
   /**
