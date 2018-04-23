@@ -15,7 +15,7 @@ class BrandService extends Service {
     async addBrand(data) {
         if (data.name) {
             let res = await this.count({ name: data.name })
-            if (res) {
+            if (res[0].count) {
                 return this.errorInfo.found('该品牌名')
             }
         }
@@ -28,7 +28,7 @@ class BrandService extends Service {
      */
     async updateBrand(id, data) {
         let res = await this.count({ id: id })
-        if (!res) {
+        if (!res[0].count) {
             return this.errorInfo.unexist('该品牌')
         }
         return await this.update(data, { id: id })
@@ -41,7 +41,7 @@ class BrandService extends Service {
     */
     async deleteBrand(id, flag = false) {
         let res = await this.count({ id: id })
-        if (!res) {
+        if (!res[0].count) {
             return this.errorInfo.unexist('该品牌')
         }
         if (flag) {
@@ -57,7 +57,7 @@ class BrandService extends Service {
      */
     async brandDetail(id) {
         let res = await this.count({ id: id })
-        if (!res) {
+        if (!res[0].count) {
             return this.errorInfo.unexist('该品牌')
         }
         return await this.get({

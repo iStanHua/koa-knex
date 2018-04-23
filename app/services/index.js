@@ -47,7 +47,7 @@ class Service {
      */
     async insertOrUpdate(values = {}, where = {}) {
         let result = await this.count({ where: where })
-        if (result) {
+        if (result[0].count) {
             return await this.update(values, where)
         }
         else {
@@ -157,7 +157,7 @@ class Service {
      * @param {String|Object} field   字段
      * @returns result
      */
-    async count(where = {}, field) {
+    async count(where = {}, field = 'id as count') {
         return await this.knex(this.table).where(where).count(field)
     }
     /**

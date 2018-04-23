@@ -15,7 +15,7 @@ class UserService extends Service {
     async addUser(data) {
         if (data.name) {
             let res = await this.count({ name: data.name })
-            if (res) {
+            if (res[0].count) {
                 return this.errorInfo.found('该用户名')
             }
         }
@@ -24,13 +24,13 @@ class UserService extends Service {
         }
         if (data.phone) {
             let res = await this.count({ phone: data.phone })
-            if (res) {
+            if (res[0].count) {
                 return this.errorInfo.found('该手机号')
             }
         }
         if (data.email) {
             let res = await this.count({ email: data.email })
-            if (res) {
+            if (res[0].count) {
                 return this.errorInfo.found('该邮箱')
             }
         }
@@ -44,7 +44,7 @@ class UserService extends Service {
      */
     async updateUser(id, data) {
         let res = await this.count({ id: id })
-        if (!res) {
+        if (!res[0].count) {
             return this.errorInfo.unexist('该用户')
         }
         return await this.update(data, { id: id })
@@ -57,7 +57,7 @@ class UserService extends Service {
     */
     async deleteUser(id, flag = false) {
         let res = await this.count({ id: id })
-        if (!res) {
+        if (!res[0].count) {
             return this.errorInfo.unexist('该用户')
         }
         if (flag) {
@@ -73,7 +73,7 @@ class UserService extends Service {
      */
     async userDetail(id) {
         let res = await this.count({ id: id })
-        if (!res) {
+        if (!res[0].count) {
             return this.errorInfo.unexist('该用户')
         }
         return await this.get({
@@ -120,7 +120,7 @@ class UserService extends Service {
         if (data.phone) {
             options.where.phone = data.phone
             let res = await this.count(options)
-            if (!res) {
+            if (!res[0].count) {
                 return this.errorInfo.unexist('该手机号')
             }
         }
