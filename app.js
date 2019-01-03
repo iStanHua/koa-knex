@@ -14,10 +14,7 @@ const response = require('./app/middlewares/response')
 const configs = require('./config')
 const routes = require('./app/routes')
 
-const Extends = require('./app/extends/index')
-
 const app = new Koa()
-app.proxy = true
 
 // error handler
 onerror(app)
@@ -53,14 +50,8 @@ app.on('error', (err, ctx) => {
     console.error('server error', err, ctx)
 })
 
-// app.listen(configs.server.port, () => {
-//     console.log(`Listening on http://${configs.server.host}:${configs.server.port}`)
-// })
-
-let ips = new Extends().getIps()
-// start the server
-http.createServer(app.callback()).listen(configs.server.port, () => {
-    console.log(`Listening on http://${ips.IPv4}:${configs.server.port}`)
-
+app.listen(configs.server.port, () => {
+    console.log(`Listening on http://${configs.server.host}:${configs.server.port}`)
 })
+
 module.exports = app
