@@ -15,7 +15,8 @@ class Validate {
             phoneFormat: /(?!^)(?=(\d{4})+$)/g,
             trim: /\s/g,
             carNumber: /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$/,
-            chinese: /[\u4E00-\u9FA5]/
+            chinese: /[\u4E00-\u9FA5]/,
+            emoji:/\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g
         }
     }
     /**
@@ -97,6 +98,12 @@ class Validate {
      */
     chinese(value) {
         return this.regs.chinese.test(value)
+    }
+    /**
+     * 表情
+     */
+    emoji(value) {
+        return this.regs.emoji.test(value)
     }
 }
 
